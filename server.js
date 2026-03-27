@@ -30,6 +30,21 @@ app.get("/", (req, res) => {
   res.send("Machi AI is running");
 });
 
+app.get("/webhook", (req, res) => {
+  const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "machiai";
+
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
+
+  if (mode && token === VERIFY_TOKEN) {
+    console.log("Webhook verified!");
+    return res.status(200).send(challenge);
+  }
+
+  return res.sendStatus(403);
+});
+
 async function getMachiReply(userMessage) {
   const response = await axios.post(
     "https://api.openai.com/v1/chat/completions",
