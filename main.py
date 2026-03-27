@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request
 from ai_engine import generate_reply
 from database import get_user_style
-from whatsapp_api import send_whatsapp
 from instagram_api import send_instagram
 from config import VERIFY_TOKEN
 
