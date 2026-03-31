@@ -46,30 +46,15 @@ app.get("/webhook", (req, res) => {
 });
 
 async function getMachiReply(userMessage) {
-  const response = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: BOT_PERSONALITY.trim()
-        },
-        {
-          role: "user",
-          content: userMessage
-        }
-      ]
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
-      }
-    }
-  );
+  const response = await axios.post("http://127.0.0.1:11434/api/generate", {
+    model: "llama3",
+    prompt: `${BOT_PERSONALITY}
+User: ${userMessage}
+Machi AI:`,
+    stream: false
+  });
 
-  return response.data.choices[0].message.content;
+  return response.data.response;
 }
 
 async function sendWhatsAppMessage(text, to) {
@@ -102,10 +87,6 @@ async function handleChat(req, res) {
 
   const userMessage = req.body?.message;
 
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ error: "OPENAI_API_KEY is missing" });
-  }
-
   if (!userMessage || typeof userMessage !== "string") {
     return res.status(400).json({ error: "message must be a non-empty string" });
   }
@@ -128,10 +109,6 @@ async function handleWebhook(req, res) {
 
   if (!incomingMessage) {
     return res.json({ status: "ignored" });
-  }
-
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ error: "OPENAI_API_KEY is missing" });
   }
 
   try {

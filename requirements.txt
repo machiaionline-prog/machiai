@@ -1,6 +1,9 @@
 fastapi
 uvicorn
-openai
-pymongo
 requests
+pymongo
+openai
 python-dotenv
+pillow
+gtts
+redis

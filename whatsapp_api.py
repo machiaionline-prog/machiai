@@ -1,2 +1,1 @@
-def send_whatsapp(*args, **kwargs):
-    return "ok"
+from integrations.whatsapp_api import send_whatsapp_message

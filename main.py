@@ -1,41 +1,36 @@
-from fastapi import FastAPI, Request
-from ai_engine import generate_reply
-from database import get_user_style
-from config import VERIFY_TOKEN
+from fastapi import FastAPI,Request
+
+from ai_engine.chat_ai import generate_reply
+from fun_engine.roast_engine import roast
+from fun_engine.meme_engine import random_meme
+from business_engine.sales_bot import sales_reply
 
 app = FastAPI()
 
-BUSY_USERS = {}
-
-
-def send_instagram(*args, **kwargs):
-    return "ok"
-
-@app.get("/webhook")
-def verify(hub_mode:str=None, hub_challenge:str=None, hub_verify_token:str=None):
-
-    if hub_verify_token == VERIFY_TOKEN:
-        return hub_challenge
-
-    return "verification failed"
-
-
 @app.post("/webhook")
-async def webhook(request: Request):
+
+async def webhook(request:Request):
 
     data = await request.json()
 
-    try:
+    user = data["user"]
+    message = data["message"]
 
-        message = data["entry"][0]["messaging"][0]["message"]["text"]
+    if "roast" in message:
 
-        user = data["entry"][0]["messaging"][0]["sender"]["id"]
+        reply = roast()
 
-        style = get_user_style(user)
+    elif "meme" in message:
 
-        reply = generate_reply(message, style)
+        reply = random_meme()
 
-    except Exception as e:
-        print(e)
+    else:
 
-    return {"ok":True}
+        business = sales_reply(message)
+
+        if business:
+            reply = business
+        else:
+            reply = generate_reply(message)
+
+    return {"reply":reply}
