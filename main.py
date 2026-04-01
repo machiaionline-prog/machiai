@@ -1,4 +1,5 @@
-from fastapi import FastAPI,Request
+from fastapi import FastAPI, Request
+from fastapi.responses import PlainTextResponse
 
 from ai_engine.chat_ai import generate_reply
 from fun_engine.roast_engine import roast
@@ -7,9 +8,21 @@ from business_engine.sales_bot import sales_reply
 
 app = FastAPI()
 
-@app.post("/webhook")
+VERIFY_TOKEN = "machi123"
 
-async def webhook(request:Request):
+@app.get("/webhook")
+async def verify_webhook(
+    hub_mode: str = None,
+    hub_verify_token: str = None,
+    hub_challenge: str = None,
+):
+    if hub_verify_token == VERIFY_TOKEN:
+        return PlainTextResponse(hub_challenge)
+
+    return PlainTextResponse("Forbidden", status_code=403)
+
+@app.post("/webhook")
+async def webhook(request: Request):
 
     data = await request.json()
 
@@ -33,4 +46,4 @@ async def webhook(request:Request):
         else:
             reply = generate_reply(message)
 
-    return {"reply":reply}
+    return {"reply": reply}
