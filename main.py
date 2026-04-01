@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.responses import PlainTextResponse
 
 from ai_engine.chat_ai import generate_reply
@@ -12,11 +12,11 @@ VERIFY_TOKEN = "machi123"
 
 @app.get("/webhook")
 async def verify_webhook(
-    hub_mode: str = None,
-    hub_verify_token: str = None,
-    hub_challenge: str = None,
+    hub_mode: str = Query(None, alias="hub.mode"),
+    hub_verify_token: str = Query(None, alias="hub.verify_token"),
+    hub_challenge: str = Query(None, alias="hub.challenge"),
 ):
-    if hub_verify_token == VERIFY_TOKEN:
+    if hub_mode == "subscribe" and hub_verify_token == VERIFY_TOKEN:
         return PlainTextResponse(hub_challenge)
 
     return PlainTextResponse("Forbidden", status_code=403)
