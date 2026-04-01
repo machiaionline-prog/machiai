@@ -4,6 +4,7 @@ requests
 pymongo
 openai
 python-dotenv
+openai
 pillow
 gtts
 redis

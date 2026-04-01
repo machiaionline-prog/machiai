@@ -1,3 +1,6 @@
+import os
+
+import requests
 from fastapi import FastAPI, Query, Request
 from fastapi.responses import PlainTextResponse
 
@@ -32,6 +35,28 @@ async def webhook(request: Request):
         message = value["messages"][0]["text"]["body"]
 
         reply = generate_reply(message)
+        WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
+        PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
+
+        url = f"https://graph.facebook.com/v23.0/{PHONE_NUMBER_ID}/messages"
+
+        headers = {
+            "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+            "Content-Type": "application/json",
+        }
+
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": sender_id,
+            "text": {
+                "body": reply,
+            },
+        }
+
+        r = requests.post(url, headers=headers, json=payload)
+
+        print(r.status_code)
+        print(r.text)
 
         return {
             "status": "ok",
