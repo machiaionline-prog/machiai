@@ -2,9 +2,6 @@ from fastapi import FastAPI, Query, Request
 from fastapi.responses import PlainTextResponse
 
 from ai_engine.chat_ai import generate_reply
-from fun_engine.roast_engine import roast
-from fun_engine.meme_engine import random_meme
-from business_engine.sales_bot import sales_reply
 
 app = FastAPI()
 
@@ -23,27 +20,25 @@ async def verify_webhook(
 
 @app.post("/webhook")
 async def webhook(request: Request):
-
     data = await request.json()
+    print(data)
 
-    user = data["user"]
-    message = data["message"]
+    try:
+        entry = data["entry"][0]
+        changes = entry["changes"][0]
+        value = changes["value"]
 
-    if "roast" in message:
+        sender_id = value["contacts"][0]["wa_id"]
+        message = value["messages"][0]["text"]["body"]
 
-        reply = roast()
+        reply = generate_reply(message)
 
-    elif "meme" in message:
+        return {
+            "status": "ok",
+            "sender": sender_id,
+            "message": message,
+            "reply": reply,
+        }
 
-        reply = random_meme()
-
-    else:
-
-        business = sales_reply(message)
-
-        if business:
-            reply = business
-        else:
-            reply = generate_reply(message)
-
-    return {"reply": reply}
+    except Exception as e:
+        return {"error": str(e), "data": data}
