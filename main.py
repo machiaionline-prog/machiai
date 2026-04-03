@@ -1,14 +1,17 @@
 import os
 
 import requests
+from dotenv import load_dotenv
 from fastapi import FastAPI, Query, Request
 from fastapi.responses import PlainTextResponse
 
 from ai_engine.chat_ai import generate_reply
 
+load_dotenv()
+
 app = FastAPI()
 
-VERIFY_TOKEN = "machi123"
+VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 
 @app.get("/webhook")
 async def verify_webhook(

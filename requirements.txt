@@ -8,3 +8,4 @@ openai
 pillow
 gtts
 redis
+firebase-admin
