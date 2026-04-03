@@ -13,6 +13,10 @@ app = FastAPI()
 
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 
+@app.get("/")
+def home():
+    return {"message": "Machi AI is running"}
+
 @app.get("/webhook")
 async def verify_webhook(
     hub_mode: str = Query(None, alias="hub.mode"),
