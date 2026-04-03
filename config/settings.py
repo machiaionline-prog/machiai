@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = OPENAI_KEY
 WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
 INSTAGRAM_TOKEN = os.getenv("INSTAGRAM_TOKEN")
 PAGE_TOKEN = os.getenv("PAGE_TOKEN") or INSTAGRAM_TOKEN
