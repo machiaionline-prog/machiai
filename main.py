@@ -38,6 +38,9 @@ async def webhook(request: Request):
         from_number = msg["from"]
         text = msg["text"]["body"]
 
+        print("FROM:", from_number)
+        print("TEXT:", text)
+
         send_whatsapp_message(from_number, f"You said: {text}")
 
     return {"status": "ok"}
