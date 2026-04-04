@@ -1,17 +1,17 @@
 import os
 
+import requests
 from dotenv import load_dotenv
 from fastapi import FastAPI, Query, Request
 from fastapi.responses import PlainTextResponse
-
-from ai_engine.chat_ai import generate_reply
-from integrations.whatsapp_api import send_whatsapp_message
 
 load_dotenv()
 
 app = FastAPI()
 
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
+WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
+PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
 
 @app.get("/")
 def home():
@@ -33,20 +33,33 @@ async def webhook(request: Request):
     data = await request.json()
     print(data)
 
-    try:
-        incoming_message = data["entry"][0]["changes"][0]["value"]["messages"][0]
-        message = incoming_message["text"]["body"]
-        from_number = incoming_message["from"]
+    if "messages" in data["entry"][0]["changes"][0]["value"]:
+        msg = data["entry"][0]["changes"][0]["value"]["messages"][0]
+        from_number = msg["from"]
+        text = msg["text"]["body"]
 
-        reply = generate_reply(message)
-        send_whatsapp_message(from_number, reply)
+        send_whatsapp_message(from_number, f"You said: {text}")
 
-        return {
-            "status": "ok",
-            "sender": from_number,
-            "message": message,
-            "reply": reply,
-        }
+    return {"status": "ok"}
 
-    except Exception as e:
-        return {"error": str(e), "data": data}
+
+def send_whatsapp_message(to, message):
+    url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
+
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": to,
+        "text": {
+            "body": message,
+        },
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+
+    print("SEND STATUS:", response.status_code)
+    print("SEND RESPONSE:", response.text)
